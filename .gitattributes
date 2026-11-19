@@ -1,0 +1,3 @@
+# Preserve bundled third-party sources without applying project whitespace rules.
+entrega/archivos-raiz/barcode/** -whitespace
+entrega/archivos-raiz/phpqrcode/** -whitespace

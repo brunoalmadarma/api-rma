@@ -1,0 +1,11 @@
+SET @correo_existe = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='clientes' AND column_name='email');
+SET @correo_sql = IF(@correo_existe=0, 'ALTER TABLE clientes ADD COLUMN email VARCHAR(150) NULL AFTER celular', 'SELECT 1');
+PREPARE correo_stmt FROM @correo_sql;
+EXECUTE correo_stmt;
+DEALLOCATE PREPARE correo_stmt;
+CREATE TABLE IF NOT EXISTS catalogo_equipos (id INT AUTO_INCREMENT PRIMARY KEY, nombre VARCHAR(120) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS catalogo_marcas (id INT AUTO_INCREMENT PRIMARY KEY, nombre VARCHAR(80) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT IGNORE INTO catalogo_equipos(nombre) VALUES ('Notebook'),('PC de escritorio'),('Monitor'),('Impresora'),('Servidor'),('Placa madre'),('Tarjeta grÃ¡fica'),('Almacenamiento'),('Fuente de alimentaciÃ³n'),('Router');
+INSERT IGNORE INTO catalogo_marcas(nombre) VALUES ('Lenovo'),('HP'),('Dell'),('Asus'),('Acer'),('Samsung'),('Epson'),('Brother'),('Gigabyte'),('MSI'),('Kingston'),('Western Digital'),('Seagate'),('TP-Link'),('Intel'),('AMD');
+INSERT IGNORE INTO catalogo_equipos(nombre) SELECT DISTINCT TRIM(equipo) FROM casos WHERE TRIM(equipo)<>'' AND equipo NOT LIKE '%DEMO%' AND equipo NOT LIKE '%QA%';
+INSERT IGNORE INTO catalogo_marcas(nombre) SELECT DISTINCT TRIM(marca) FROM casos WHERE TRIM(marca)<>'' AND marca NOT LIKE '%DEMO%' AND marca NOT LIKE '%QA%';

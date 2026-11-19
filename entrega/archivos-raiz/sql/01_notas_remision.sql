@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS notas_remision (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ id_caso INT NOT NULL,
+ numero_caso VARCHAR(100) NOT NULL,
+ id_caso_insumo INT NULL,
+ id_stock INT NULL,
+ codigo_sku VARCHAR(100) NULL,
+ insumo_nombre VARCHAR(255) NULL,
+ id_tecnico INT NOT NULL,
+ id_usuario_creador INT NOT NULL,
+ cantidad INT NOT NULL DEFAULT 1,
+ costo_unitario DECIMAL(15,2) NOT NULL DEFAULT 0,
+ observacion TEXT NULL,
+ estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
+ fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ fecha_cierre DATETIME NULL,
+ id_usuario_cierre INT NULL,
+ observacion_cierre TEXT NULL,
+ INDEX idx_rem_estado (estado), INDEX idx_rem_tecnico (id_tecnico), INDEX idx_rem_caso (id_caso)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

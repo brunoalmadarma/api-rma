@@ -1,0 +1,7 @@
+Options -Indexes
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+<FilesMatch "^(config\.local\.php|config\.local\.example\.php|db_config\.php)$">
+    Require all denied
+</FilesMatch>
