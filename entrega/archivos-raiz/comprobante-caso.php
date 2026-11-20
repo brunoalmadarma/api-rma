@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once "api-rma/db.php";
+require_once __DIR__ . '/api-rma/db.php';
 
 if (!isset($pdo)) {
     die("Protocolo caído. No hay conexión con el núcleo de la base de datos.");
@@ -17,7 +17,10 @@ if ($token === "") {
 
 try {
     // Intentamos decodificar la cadena Base64
-    $decodificado = base64_decode($token);
+    $decodificado = is_string($token) ? base64_decode($token, true) : false;
+    if ($decodificado === false) {
+        throw new Exception("El token de acceso es inválido.");
+    }
     $partes = explode("||", $decodificado);
 
     if (count($partes) !== 2) {
@@ -31,7 +34,7 @@ try {
     $secret_salt = "MICRO_EXPRESS_SECURE_TOKEN_2026";
     $hash_esperado = md5($numero_caso . $secret_salt);
 
-    if ($hash_recibido !== $hash_esperado) {
+    if (!hash_equals($hash_esperado, $hash_recibido)) {
         throw new Exception("Firma digital inválida. Intento de intrusión detectado.");
     }
     // Query optimizado solo con campos reales existentes en tu BD
@@ -70,7 +73,7 @@ try {
     // URLs dinámicas para los códigos de barras y QR
     $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
-    $url_visualizacion = $protocolo . $host . "/rma-app/comprobante-caso.php?numero=" . urlencode($caso['numero_caso']);
+    $url_visualizacion = $protocolo . $host . "/rma-app/comprobante-caso.php?token=" . urlencode($token);
 
     require_once __DIR__ . '/api-rma/rma-core/casos/imagenes_service.php';
     $qr_image_url='data:image/png;base64,'.base64_encode(rmaImagenEtiqueta($caso['numero_caso'],'qr'));
@@ -79,6 +82,10 @@ try {
 } catch (Exception $e) {
     die("<div style='color:red; font-family:monospace; padding:20px;'><strong>CRITICAL ERROR:</strong> " . $e->getMessage() . "</div>");
 }
+// El generador de QR envía image/png incluso con la imagen en memoria.
+// La respuesta completa es un documento HTML imprimible.
+header('Content-Type: text/html; charset=UTF-8');
+header('Cache-Control: no-store');
 ?>
 <!DOCTYPE html>
 <html lang="es">
